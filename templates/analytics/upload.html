@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Импорт данных рекламных кампаний | Автозапчасти{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h4 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Загрузка данных суточных метрик (CSV)
+                </h4>
+                <p class="text-muted small mb-0">
+                    Импорт статистики из рекламных кабинетов (Яндекс.Директ, VK Реклама, Google Ads) или CRM-системы интернет-магазина
+                </p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'upload_data' %}">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="csv_file" class="form-label fw-semibold">Выберите файл отчета (*.csv):</label>
+                        <input class="form-control form-control-lg" type="file" id="csv_file" name="file" accept=".csv" required>
+                        <div class="form-text mt-2">
+                            Файл должен быть в кодировке UTF-8 или Windows-1251. В качестве разделителя поддерживается точка с запятой (;) или запятая (,).
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-upload me-1"></i> Начать импорт данных
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Справка по формату загружаемого файла -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-0 py-3">
+                <h6 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-info-circle text-primary me-2"></i>Требования к структуре CSV-файла
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-2">Файл должен содержать строку заголовков со следующими наименованиями столбцов:</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Имя поля</th>
+                                <th>Тип</th>
+                                <th>Описание</th>
+                                <th>Пример</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>campaign_name</code></td>
+                                <td>Текст</td>
+                                <td>Название рекламной кампании</td>
+                                <td>Поиск_СПб_Тормозные_Колодки</td>
+                            </tr>
+                            <tr>
+                                <td><code>date</code></td>
+                                <td>Дата</td>
+                                <td>Дата замера в формате ГГГГ-ММ-ДД</td>
+                                <td>2026-10-15</td>
+                            </tr>
+                            <tr>
+                                <td><code>impressions</code></td>
+                                <td>Число</td>
+                                <td>Количество показов объявлений</td>
+                                <td>4500</td>
+                            </tr>
+                            <tr>
+                                <td><code>clicks</code></td>
+                                <td>Число</td>
+                                <td>Количество кликов (переходов на сайт)</td>
+                                <td>210</td>
+                            </tr>
+                            <tr>
+                                <td><code>cost</code></td>
+                                <td>Число</td>
+                                <td>Маркетинговые расходы (руб.)</td>
+                                <td>5420.50</td>
+                            </tr>
+                            <tr>
+                                <td><code>cart_additions</code></td>
+                                <td>Число</td>
+                                <td>Добавлений автозапчастей в корзину</td>
+                                <td>32</td>
+                            </tr>
+                            <tr>
+                                <td><code>orders_count</code></td>
+                                <td>Число</td>
+                                <td>Число оформленных заказов</td>
+                                <td>14</td>
+                            </tr>
+                            <tr>
+                                <td><code>revenue</code></td>
+                                <td>Число</td>
+                                <td>Суммарная выручка по заказам (руб.)</td>
+                                <td>89600.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

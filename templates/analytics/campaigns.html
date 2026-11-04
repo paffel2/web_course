@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Список рекламных кампаний | Автозапчасти{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-megaphone-fill text-primary me-2"></i>Рекламные кампании автозапчастей
+        </h2>
+        <p class="text-muted small mb-0">Управление статусами, бюджетами и аудит продвижения в рекламных кабинетах</p>
+    </div>
+    {% if user.is_staff %}
+    <a href="/admin/analytics/campaign/add/" target="_blank" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Добавить кампанию
+    </a>
+    {% endif %}
+</div>
+
+<!-- Фильтрация списка кампаний -->
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body py-3">
+        <form method="GET" action="{% url 'campaigns_list' %}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1 fw-semibold">Статус кампании:</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Все статусы</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Активна</option>
+                    <option value="paused" {% if selected_status == 'paused' %}selected{% endif %}>Приостановлена</option>
+                    <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Завершена</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small text-muted mb-1 fw-semibold">Рекламный кабинет:</label>
+                <select name="cabinet" class="form-select form-select-sm">
+                    <option value="">Все кабинеты</option>
+                    {% for c in cabinets %}
+                    <option value="{{ c.id }}" {% if selected_cabinet == c.id|stringformat:"s" or selected_platform == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Фильтровать</button>
+                <a href="{% url 'campaigns_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Список кампаний в виде карточек -->
+<div class="row g-4">
+    {% for camp in campaigns %}
+    <div class="col-lg-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100 hover-shadow transition">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ camp.cabinet.name }}</span>
+                    {% if camp.status == 'active' %}
+                        <span class="badge bg-success-subtle text-success border border-success">Активна</span>
+                    {% elif camp.status == 'paused' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning">Приостановлена</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Завершена</span>
+                    {% endif %}
+                </div>
+                <h5 class="card-title fw-bold text-dark mb-2">
+                    <a href="{% url 'campaign_detail' camp.id %}" class="text-decoration-none text-dark stretched-link">
+                        {{ camp.name }}
+                    </a>
+                </h5>
+                <p class="card-text text-muted small mb-3">
+                    <i class="bi bi-bullseye me-1"></i>Целевой норматив ДРР: <strong>{{ camp.target_drr }}%</strong>
+                </p>
+                <div class="d-flex justify-content-between text-muted small pt-2 border-top">
+                    <span>Дневной бюджет: <strong>{{ camp.daily_budget|floatformat:0 }} ₽</strong></span>
+                    <span>Старт: {{ camp.start_date|date:"d.m.Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        Кампаний по заданным критериям не найдено.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
